@@ -48,6 +48,6 @@ def a_nb(conv_scheme, area, idx, ul, ur, gl, gr, rho, sign_f):
         a = area * ( d*a_pec_pow(abs(f/d)) + max(fp(0.0),sign_f*f) )
     elif conv_scheme == 3:
         # SOU
-        a = 0.0 # to be implemented
+        a = area * ( d + max(fp(0.0),sign_f*f) )  # same aw, ae, as, an as Upwind
     
     return a

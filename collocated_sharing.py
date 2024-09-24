@@ -63,7 +63,7 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                     rho   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
 
                 mul = con; mur = con
-                ul    = uf[i+1,j,k]
+                ul    = uf[i+1,j,k]   # uniform velocity field, no interpolation needed
                 ur    = uf[i+1,j,k]
                 aE    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho, -fp(1.0))
 
