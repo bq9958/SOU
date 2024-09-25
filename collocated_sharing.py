@@ -7,6 +7,8 @@ Created on 04/05/2023
 import numpy as np
 from precision_data import fp
 from kernels import *
+import logging
+logger = logging.getLogger(__name__)
 
 # For temperature
 def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x, y, z, dens, t, uf, vf, wf, ct):
@@ -58,47 +60,51 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                 # Calculate the coeffs as the Patankar's book
                 # East Face
                 if(i==ncx-1):
-                    rho   = dens[i,j,k]
+                    rho_e   = dens[i,j,k]
                 else:
-                    rho   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
+                    rho_e   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
 
                 mul = con; mur = con
                 ul    = uf[i+1,j,k]   # uniform velocity field, no interpolation needed
                 ur    = uf[i+1,j,k]
-                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho, -fp(1.0))
+                u_e = fp(0.5)*(ul+ur)
+                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho_e, -fp(1.0))
 
                 # West Face
                 if(i==0):
-                    rho   = dens[i,j,k]
+                    rho_w   = dens[i,j,k]
                 else:
-                    rho   = fp(0.5)*(dens[i,j,k]+dens[i-1,j,k])
+                    rho_w   = fp(0.5)*(dens[i,j,k]+dens[i-1,j,k])
 
                 mul = con; mur = con
                 ul    = uf[i,j,k]
                 ur    = uf[i,j,k]
-                aW    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho, fp(1.0))
+                u_w = fp(0.5)*(ul+ur)
+                aW    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho_w, fp(1.0))
 
                 # North Face
                 if(j==ncy-1):
-                    rho   = dens[i,j,k]
+                    rho_n   = dens[i,j,k]
                 else:
-                    rho   = fp(0.5)*(dens[i,j,k]+dens[i,j+1,k])
+                    rho_n   = fp(0.5)*(dens[i,j,k]+dens[i,j+1,k])
 
                 mul = con; mur = con
                 ul  = vf[i,j+1,k]
                 ur  = vf[i,j+1,k]
-                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho, -fp(1.0))
+                u_n = fp(0.5)*(ul+ur)
+                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho_n, -fp(1.0))
 
                 # South Face
                 if(j==0):
-                    rho   = dens[i,j,k]
+                    rho_s   = dens[i,j,k]
                 else:
-                    rho   = fp(0.5)*(dens[i,j,k]+dens[i,j-1,k])
+                    rho_s   = fp(0.5)*(dens[i,j,k]+dens[i,j-1,k])
 
                 mul = con; mur = con
                 ul  = vf[i,j,k]
                 ur  = vf[i,j,k]
-                aS  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho, fp(1.0))
+                u_s = fp(0.5)*(ul+ur)
+                aS  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho_s, fp(1.0))
 
                 if dim==3:
 
@@ -126,7 +132,15 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
 
                 rho   = dens[i,j,k]
                 aP0   = rho*spht*vol*idt
-                aP    = aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
+                if conv_scheme == 3:
+                    fe = u_e*rho_e
+                    fw = u_w*rho_w
+                    fn = u_n*rho_n
+                    fs = u_s*rho_s
+                    aP = (aP + aE + aW + aN + aS + aT + aB - sP*vol +  
+                            (fe - fw) + (fn - fs))   # 在SOU中先不考虑瞬态项, to extend to 3D
+                else:
+                    aP    = aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
 
                 # Store coefficients as our reference book
                 ct[i,j,k,id_aP]   = aP

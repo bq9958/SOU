@@ -10,6 +10,7 @@ import time
 from precision_data import fp
 from structured_mesh import *
 from collocated_segregated import *
+import log_config
 
 # clock
 clock_begin = time.perf_counter() # define clock_begin
