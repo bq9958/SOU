@@ -77,5 +77,5 @@ def SOU_source(limiter, fw, fe, fn, fs):
     if fn > 0:
         alpha_n = 1
     else:
-        alpha_n = 0        
+        alpha_n = 0       
     
