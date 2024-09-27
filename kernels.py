@@ -77,5 +77,15 @@ def SOU_source(limiter, fw, fe, fn, fs):
     if fn > 0:
         alpha_n = 1
     else:
-        alpha_n = 0       
+        alpha_n = 0     
+
+def SOU_r(ncx, ncy, ncz, t, dir):   # dir: "x", "y" or "z"(3D)
+    for k in range(ncz):
+        for j in range(ncy):
+            for i in range(ncx):
+                if dir == "x":
+                    if i == 1:
+                        
+    
+        
     

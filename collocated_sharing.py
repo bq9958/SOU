@@ -141,7 +141,7 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                             (fe - fw) + (fn - fs))   # 在SOU中先不考虑瞬态项, to extend to 3D
                 else:
                     aP    = aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
-
+                
                 # Store coefficients as our reference book
                 ct[i,j,k,id_aP]   = aP
                 ct[i,j,k,id_aE]   = -aE

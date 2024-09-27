@@ -134,6 +134,8 @@ class StructuredMesh:
         
         # temperature coefficient
         self.ct = np.zeros((self.ncx, self.ncy, self.ncz, self.ncoef  ), dtype=fp)
+        
+        self.r = np.zeros((self.nx, self.ny, self.nz), dtype = fp)
 
     def CreateSimulationData(self):
         

@@ -32,7 +32,8 @@ def collocated_segregated(it, case, fluid, fluidboundary, post):
     uf      = case.uf     
     vf      = case.vf     
     wf      = case.wf     
-    ct      = case.ct     
+    ct      = case.ct  
+    r       = case.r   
     
     niter_t = case.niter_t
     relax_t = case.relax_t
