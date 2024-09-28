@@ -27,9 +27,8 @@ def a_pec_pow(pec):
 
     return ap
 
-def a_nb(conv_scheme, area, idx, ul, ur, gl, gr, rho, sign_f):
+def a_nb(conv_scheme, area, idx, f, gl, gr, sign_f):
 
-    f = rho*fp(0.5)*(ul+ur)
     d = fp(2.0)*gl*gr/(gl+gr+fp(1.e-12))*idx
 
     # print("conv_scheme ", conv_scheme)
@@ -79,12 +78,6 @@ def SOU_source(limiter, fw, fe, fn, fs):
     else:
         alpha_n = 0     
 
-def SOU_r(ncx, ncy, ncz, t, dir):   # dir: "x", "y" or "z"(3D)
-    for k in range(ncz):
-        for j in range(ncy):
-            for i in range(ncx):
-                if dir == "x":
-                    if i == 1:
                         
     
         

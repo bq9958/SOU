@@ -65,10 +65,9 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                     rho_e   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
 
                 mul = con; mur = con
-                ul    = uf[i+1,j,k]   # uniform velocity field, no interpolation needed
-                ur    = uf[i+1,j,k]
-                u_e = fp(0.5)*(ul+ur)
-                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho_e, -fp(1.0))
+                ue    = uf[i+1,j,k]   
+                fe    = ue*rho_e
+                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, fe, -fp(1.0))
 
                 # West Face
                 if(i==0):
@@ -77,10 +76,9 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                     rho_w   = fp(0.5)*(dens[i,j,k]+dens[i-1,j,k])
 
                 mul = con; mur = con
-                ul    = uf[i,j,k]
-                ur    = uf[i,j,k]
-                u_w = fp(0.5)*(ul+ur)
-                aW    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho_w, fp(1.0))
+                uw    = uf[i,j,k]
+                fw    = uw*rho_w
+                aW    = a_nb(conv_scheme, area_x, idx, fw, mul, mur, fp(1.0))
 
                 # North Face
                 if(j==ncy-1):
@@ -89,10 +87,9 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                     rho_n   = fp(0.5)*(dens[i,j,k]+dens[i,j+1,k])
 
                 mul = con; mur = con
-                ul  = vf[i,j+1,k]
-                ur  = vf[i,j+1,k]
-                u_n = fp(0.5)*(ul+ur)
-                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho_n, -fp(1.0))
+                un  = vf[i,j+1,k]
+                fn  = un*rho_n
+                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, fn, -fp(1.0))
 
                 # South Face
                 if(j==0):
@@ -101,46 +98,52 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                     rho_s   = fp(0.5)*(dens[i,j,k]+dens[i,j-1,k])
 
                 mul = con; mur = con
-                ul  = vf[i,j,k]
-                ur  = vf[i,j,k]
-                u_s = fp(0.5)*(ul+ur)
-                aS  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho_s, fp(1.0))
+                us  = vf[i,j,k]
+                fs  = us*rho_s
+                aS  = a_nb(conv_scheme, area_y, idy, fs, mul, mur, fp(1.0))
 
                 if dim==3:
 
                     # Top Face
                     if(k==ncz-1):
-                        rho   = dens[i,j,k]
+                        rho_t   = dens[i,j,k]
                     else:
-                        rho   = fp(0.5)*(dens[i,j,k]+dens[i,j,k+1])
+                        rho_t   = fp(0.5)*(dens[i,j,k]+dens[i,j,k+1])
 
                     mul = con; mur = con
-                    ul  = wf[i,j,k+1]
-                    ur  = wf[i,j,k+1]
-                    aT  = a_nb(conv_scheme, area_z, idz, ul, ur, mul, mur, rho, -fp(1.0))
+                    ut  = wf[i,j,k+1]
+                    ft  = ut*rho_t
+                    aT  = a_nb(conv_scheme, area_z, idz, ft, mul, mur, -fp(1.0))
 
                     # Bottom Face
                     if(k==0):
-                        rho   = dens[i,j,k]
+                        rho_b   = dens[i,j,k]
                     else:
-                        rho   = fp(0.5)*(dens[i,j,k]+dens[i,j,k-1])
+                        rho_b   = fp(0.5)*(dens[i,j,k]+dens[i,j,k-1])
 
                     mul = con; mur = con
-                    ul  = wf[i,j,k]
-                    ur  = wf[i,j,k]
-                    aB  = a_nb(conv_scheme, area_z, idz, ul, ur, mul, mur, rho, fp(1.0))
+                    ub  = wf[i,j,k]
+                    fb  = ub*rho_b
+                    aB  = a_nb(conv_scheme, area_z, idz, fb, mul, mur, fp(1.0))
 
+                # x-momentum east&west face
+                if (i > 1) and (i < ncx-2):
+                    phiww = t[i-2,j,k]    # phi up-upstream
+                    phiw  = t[i-1,j,k]
+                    phiee = t[i+2,j,k]
+                    phie  = t[i+1,k,k]
+                    phip = t[i,j,k]
+                    if ue > 0:
+                        ru = (phip - phiw)/(phie - phip) # r-upstream
+                    else:
+                        ru = (phiee - phie)/(phie - phip)
+                    
+                    
                 rho   = dens[i,j,k]
                 aP0   = rho*spht*vol*idt
-                if conv_scheme == 3:
-                    fe = u_e*rho_e
-                    fw = u_w*rho_w
-                    fn = u_n*rho_n
-                    fs = u_s*rho_s
-                    aP = (aP + aE + aW + aN + aS + aT + aB - sP*vol +  
-                            (fe - fw) + (fn - fs))   # 在SOU中先不考虑瞬态项, to extend to 3D
-                else:
-                    aP    = aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
+
+                aP    = (aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
+                                + (fe - fw) + (fn - fs) + (ft - fb))
                 
                 # Store coefficients as our reference book
                 ct[i,j,k,id_aP]   = aP
