@@ -54,6 +54,7 @@ def collocated_segregated(it, case, fluid, fluidboundary, post):
         
         # Evaluate temperature equation coefs
         conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x, y, z, dens, t, uf, vf, wf, ct)
+        SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct)
         conduction_coef_bcs(case, fluidboundary, dim, ncx, ncy, ncz, ncoef, dt, con, x, y, z, dens, t, ct)
         
         initzero = False

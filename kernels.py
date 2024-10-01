@@ -6,8 +6,6 @@ Created on 04/05/2023
 
 import numpy as np
 from precision_data import fp
-import logging
-logger = logging.getLogger(__name__)
 
 def cal_area_vol(dx, dy, dz):
     
@@ -27,8 +25,9 @@ def a_pec_pow(pec):
 
     return ap
 
-def a_nb(conv_scheme, area, idx, f, gl, gr, sign_f):
+def a_nb(conv_scheme, area, idx, ul, ur, gl, gr, rho, sign_f):
 
+    f = rho*fp(0.5)*(ul+ur)
     d = fp(2.0)*gl*gr/(gl+gr+fp(1.e-12))*idx
 
     # print("conv_scheme ", conv_scheme)
@@ -49,36 +48,13 @@ def a_nb(conv_scheme, area, idx, f, gl, gr, sign_f):
         a = area * ( d*a_pec_pow(abs(f/d)) + max(fp(0.0),sign_f*f) )
     elif conv_scheme == 3:
         # SOU
-        a = area * ( d + max(fp(0.0),sign_f*f) )  # same aw, ae, as, an as Upwind
+        a = 0.0 # to be implemented
     
     return a
 
-def limiter(limiter,r):
-    if limiter == 0:   #vanLeer limiter
+def limiter(r, limiter):
+    if limiter == "vanleer":
         if r == fp(-1.0):
-            return r   # why output r ? 
+            return r
         else:
-            return (r+abs(r))/(1+r)
-    
-def SOU_source(limiter, fw, fe, fn, fs):
-    if fw > 0:
-        alpha_w = 1
-    else:
-        alpha_w = 0
-    if fe > 0:
-        alpha_e = 1
-    else:
-        alpha_e = 0
-    if fs > 0:
-        alpha_s = 1
-    else:
-        alpha_s = 0
-    if fn > 0:
-        alpha_n = 1
-    else:
-        alpha_n = 0     
-
-                        
-    
-        
-    
+            return (r+abs(r))/(fp(1.0)+r)

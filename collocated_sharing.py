@@ -7,8 +7,6 @@ Created on 04/05/2023
 import numpy as np
 from precision_data import fp
 from kernels import *
-import logging
-logger = logging.getLogger(__name__)
 
 # For temperature
 def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x, y, z, dens, t, uf, vf, wf, ct):
@@ -60,91 +58,76 @@ def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x
                 # Calculate the coeffs as the Patankar's book
                 # East Face
                 if(i==ncx-1):
-                    rho_e   = dens[i,j,k]
+                    rho   = dens[i,j,k]
                 else:
-                    rho_e   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
+                    rho   = fp(0.5)*(dens[i,j,k]+dens[i+1,j,k])
 
                 mul = con; mur = con
-                ue    = uf[i+1,j,k]   
-                fe    = ue*rho_e
-                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, fe, -fp(1.0))
+                ul    = uf[i+1,j,k]
+                ur    = uf[i+1,j,k]
+                aE    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho, -fp(1.0))
 
                 # West Face
                 if(i==0):
-                    rho_w   = dens[i,j,k]
+                    rho   = dens[i,j,k]
                 else:
-                    rho_w   = fp(0.5)*(dens[i,j,k]+dens[i-1,j,k])
+                    rho   = fp(0.5)*(dens[i,j,k]+dens[i-1,j,k])
 
                 mul = con; mur = con
-                uw    = uf[i,j,k]
-                fw    = uw*rho_w
-                aW    = a_nb(conv_scheme, area_x, idx, fw, mul, mur, fp(1.0))
+                ul    = uf[i,j,k]
+                ur    = uf[i,j,k]
+                aW    = a_nb(conv_scheme, area_x, idx, ul, ur, mul, mur, rho, fp(1.0))
 
                 # North Face
                 if(j==ncy-1):
-                    rho_n   = dens[i,j,k]
+                    rho   = dens[i,j,k]
                 else:
-                    rho_n   = fp(0.5)*(dens[i,j,k]+dens[i,j+1,k])
+                    rho   = fp(0.5)*(dens[i,j,k]+dens[i,j+1,k])
 
                 mul = con; mur = con
-                un  = vf[i,j+1,k]
-                fn  = un*rho_n
-                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, fn, -fp(1.0))
+                ul  = vf[i,j+1,k]
+                ur  = vf[i,j+1,k]
+                aN  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho, -fp(1.0))
 
                 # South Face
                 if(j==0):
-                    rho_s   = dens[i,j,k]
+                    rho   = dens[i,j,k]
                 else:
-                    rho_s   = fp(0.5)*(dens[i,j,k]+dens[i,j-1,k])
+                    rho   = fp(0.5)*(dens[i,j,k]+dens[i,j-1,k])
 
                 mul = con; mur = con
-                us  = vf[i,j,k]
-                fs  = us*rho_s
-                aS  = a_nb(conv_scheme, area_y, idy, fs, mul, mur, fp(1.0))
+                ul  = vf[i,j,k]
+                ur  = vf[i,j,k]
+                aS  = a_nb(conv_scheme, area_y, idy, ul, ur, mul, mur, rho, fp(1.0))
 
                 if dim==3:
 
                     # Top Face
                     if(k==ncz-1):
-                        rho_t   = dens[i,j,k]
+                        rho   = dens[i,j,k]
                     else:
-                        rho_t   = fp(0.5)*(dens[i,j,k]+dens[i,j,k+1])
+                        rho   = fp(0.5)*(dens[i,j,k]+dens[i,j,k+1])
 
                     mul = con; mur = con
-                    ut  = wf[i,j,k+1]
-                    ft  = ut*rho_t
-                    aT  = a_nb(conv_scheme, area_z, idz, ft, mul, mur, -fp(1.0))
+                    ul  = wf[i,j,k+1]
+                    ur  = wf[i,j,k+1]
+                    aT  = a_nb(conv_scheme, area_z, idz, ul, ur, mul, mur, rho, -fp(1.0))
 
                     # Bottom Face
                     if(k==0):
-                        rho_b   = dens[i,j,k]
+                        rho   = dens[i,j,k]
                     else:
-                        rho_b   = fp(0.5)*(dens[i,j,k]+dens[i,j,k-1])
+                        rho   = fp(0.5)*(dens[i,j,k]+dens[i,j,k-1])
 
                     mul = con; mur = con
-                    ub  = wf[i,j,k]
-                    fb  = ub*rho_b
-                    aB  = a_nb(conv_scheme, area_z, idz, fb, mul, mur, fp(1.0))
+                    ul  = wf[i,j,k]
+                    ur  = wf[i,j,k]
+                    aB  = a_nb(conv_scheme, area_z, idz, ul, ur, mul, mur, rho, fp(1.0))
 
-                # x-momentum east&west face
-                if (i > 1) and (i < ncx-2):
-                    phiww = t[i-2,j,k]    # phi up-upstream
-                    phiw  = t[i-1,j,k]
-                    phiee = t[i+2,j,k]
-                    phie  = t[i+1,k,k]
-                    phip = t[i,j,k]
-                    if ue > 0:
-                        ru = (phip - phiw)/(phie - phip) # r-upstream
-                    else:
-                        ru = (phiee - phie)/(phie - phip)
-                    
-                    
                 rho   = dens[i,j,k]
                 aP0   = rho*spht*vol*idt
+                aP    = aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
 
-                aP    = (aP + aE + aW + aN + aS + aT + aB + aP0 - sP*vol
-                                + (fe - fw) + (fn - fs) + (ft - fb))
-                
                 # Store coefficients as our reference book
                 ct[i,j,k,id_aP]   = aP
                 ct[i,j,k,id_aE]   = -aE
@@ -254,11 +237,11 @@ def conduction_coef_bcs(case, fluidboundary, dim, ncx, ncy, ncz, ncoef, dt, con,
                         ct[i,j,k,id_aE]   = 0.0
 
                 # West face BC
-                if bc_w == bc_inlet:
+                if bc_w == bc_inlet:    # Dirichlet BC
                     ct[i, j, k, id_aP] -= ct[i, j, k, id_aW]
                     ct[i, j, k, id_bsrc] -= 2.0 * ct[i, j, k, id_aW] * bc_tw
                     ct[i, j, k, id_aW] = 0.0
-                elif bc_w == bc_outlet:
+                elif bc_w == bc_outlet:  # Neumann BC with flux = 0
                     ct[i, j, k, id_aP] += ct[i, j, k, id_aW]
                     ct[i, j, k, id_aW] = 0.0
                 elif bc_w == bc_wall:
@@ -330,3 +313,294 @@ def conduction_coef_bcs(case, fluidboundary, dim, ncx, ncy, ncz, ncoef, dt, con,
 
     return
 
+def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
+    
+    limiter_scheme = case.limiter_scheme
+    
+    id_bsrc = case.id_bsrc
+    
+    # Get area & volume
+    dx = case.dx
+    dy = case.dy
+    dz = case.dz
+    area_x, area_y, area_z, vol = cal_area_vol(dx, dy, dz)
+    
+    xc = case.xc
+    yc = case.yc
+    if dim==3:
+        zc = case.zc
+
+    # define local variables related to the fluidboundary object
+    bcid  = fluidboundary.bcid
+
+    fid_e = fluidboundary.fid_e
+    fid_w = fluidboundary.fid_w
+    fid_n = fluidboundary.fid_n
+    fid_s = fluidboundary.fid_s
+    if dim==3:
+        fid_t = fluidboundary.fid_t
+        fid_b = fluidboundary.fid_b
+    
+    bcs = fluidboundary.bcs
+    bcs_temp = fluidboundary.bcs_temp
+    
+    bc_none   = fluidboundary.bc_none  
+    bc_wall   = fluidboundary.bc_wall  
+    bc_inlet  = fluidboundary.bc_inlet 
+    bc_outlet = fluidboundary.bc_outlet
+    
+    for k in range(ncz):
+            for j in range(ncy):
+                for i in range(ncx):
+                    
+                    # phiuu | phiu | p | phid | phidd
+                    # u > 0 toward east; v > 0 toward north
+                    # therfore, west and south are upstreams; east and north are downstreams
+                    t_uu = fp(0.)
+                    t_u  = fp(0.)
+                    t_p  = t[i,j,k]
+                    t_d  = fp(0.)
+                    t_dd = fp(0.)
+                    
+                    current_cell_boundary = False
+                    
+                    # face vel down/upstream
+                    uf_d = uf[i+1,j,k]
+                    uf_u = uf[i,j,k]
+                    vf_d = vf[i,j+1,k]
+                    vf_u = vf[i,j,k]
+                    
+                    rho = fp(0.)
+                    
+                    bcid_e = bcid[i,j,k,fid_e]
+                    bcid_w = bcid[i,j,k,fid_w]
+                    bcid_n = bcid[i,j,k,fid_n]
+                    bcid_s = bcid[i,j,k,fid_s]
+                    
+                    bc_e = bcs[bcid_e].type
+                    bc_w = bcs[bcid_w].type
+                    bc_n = bcs[bcid_n].type
+                    bc_s = bcs[bcid_s].type
+                    
+                    # East&west faces
+                    # if the east face of the current cell is boundary
+                    if bc_e == bc_inlet:
+                        bc_te = bcs_temp[bcid_e].t
+                        t_d = fp(2.0)*bc_te-t_p 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_e == bc_wall:
+                        bc_te = bcs_temp[bcid_e].t
+                        t_d = fp(2.0)*bc_te-t_p 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_e == bc_outlet:
+                        bc_te = bcs_temp[bcid_e].t
+                        t_d = fp(2.0)*t_p-t_u 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    else:
+                        t_d = t[i+1,k,j]
+                        rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
+                    
+                    # if the east face of the east cell is boundary
+                    if current_cell_boundary == False:
+                        if bcs[bcid[i+1,j,k,fid_e]] == bc_inlet:
+                            bcid_e = bcid[i+1,j,k,fid_e]
+                            bc_te = bcs_temp[bcid_e].t
+                            t_dd = fp(2.0)*bc_te-t_d
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
+                        elif bcs[bcid[i+1,j,k,fid_e]] == bc_wall:
+                            bcid_e = bcid[i+1,j,k,fid_e]
+                            bc_te = bcs_temp[bcid_e].t
+                            t_dd = fp(2.0)*bc_te-t_d
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
+                        elif bcs[bcid[i+1,j,k,fid_e]] == bc_outlet:
+                            t_dd = fp(2.0)*t_d - t_p
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
+                        else:
+                            t_dd = t[i+2,k,j]
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
+                        
+                    f_d = rho*uf_d*area_x   # flux downstream
+                    current_cell_boundary = False
+                    
+                    # if the west face of the current cell is boundary
+                    if bc_w == bc_inlet:
+                        bc_tw = bcs_temp[bcid_w].t
+                        t_u = fp(2.0)*bc_tw-t_p 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_w == bc_wall:
+                        bc_tw = bcs_temp[bcid_w].t
+                        t_u = fp(2.0)*bc_tw-t_p 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_w == bc_outlet:
+                        bc_tw = bcs_temp[bcid_w].t
+                        t_u = fp(2.0)*t_p-t_d 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    else:
+                        t_u = t[i-1,k,j]
+                        rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                    
+                    # if the west face of the west cell is boundary
+                    if current_cell_boundary == False:
+                        if bcs[bcid[i-1,j,k,fid_w]] == bc_inlet:
+                            bcid_w = bcid[i-1,j,k,fid_w]
+                            bc_tw = bcs_temp[bcid_w].t
+                            t_uu = fp(2.0)*bc_tw-t_u
+                            rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                        elif bcs[bcid[i-1,j,k,fid_w]] == bc_wall:
+                            bcid_w = bcid[i-1,j,k,fid_w]
+                            bc_tw = bcs_temp[bcid_w].t
+                            t_uu = fp(2.0)*bc_tw-t_u
+                            rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                        elif bcs[bcid[i-1,j,k,fid_w]] == bc_outlet:
+                            t_uu = fp(2.0)*t_u - t_p
+                            rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                        else:
+                            t_uu = t[i-2,j,k]
+                            rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                        
+                    f_u = rho*uf_u*area_x   # flux upstream
+                    current_cell_boundary = False
+                    
+                    au = fp(0.); ad = fp(0.)
+                    if f_u > fp(0.):
+                        au = fp(1.)
+                    if f_d > fp(0.):
+                        ad = fp(1.)
+                    
+                    rdm = (t_dd-t_d)/(t_d-t_p+1.e-12)    # rdm : r_downstream^minus
+                    rdp = (t_p-t_u)/(t_d-t_p+1.e-12)     # rdp : r_downstream^plus
+                    rum = (t_d-t_p)/(t_p-t_u+1.e-12)
+                    rup = (t_u-t_uu)/(t_p-t_u+1.e-12)
+                    
+                    if(t_dd==t_d) : rdm = fp(0.)
+                    if(t_p==t_u) : rdp = fp(0.)
+                    if(t_d==t_p) : rum = fp(0.)
+                    if(t_u==t_uu) : rup = fp(0.)
+                    
+                    src = (fp(0.5)*f_d*((fp(1.)-ad)*limiter(rdm,limiter_scheme)-ad*limiter(rdp,limiter_scheme))*(t_d-t_p) 
+                                - fp(0.5)*f_u*((fp(1.)-au)*limiter(rum,limiter_scheme)-au*limiter(rup,limiter_scheme))*(t_p-t_u))
+                    
+                    # North&east faces
+                    # if the north face of the current cell is boundary
+                    if bc_n == bc_inlet:
+                        bc_tn = bcs_temp[bcid_n].t
+                        t_d = fp(2.0)*bc_tn-t_p 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_n == bc_wall:
+                        bc_tn = bcs_temp[bcid_n].t
+                        t_d = fp(2.0)*bc_tn-t_p 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_n == bc_outlet:
+                        bc_tn = bcs_temp[bcid_n].t
+                        t_d = fp(2.0)*t_p-t_u 
+                        t_dd = fp(2.0)*t_d-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    else:
+                        t_d = t[i,k+1,j]
+                        rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
+                    
+                    # if the north face of the north cell is boundary
+                    if current_cell_boundary == False:
+                        if bcs[bcid[i,j+1,k,fid_n]] == bc_inlet:
+                            bcid_n = bcid[1,j+1,k,fid_n]
+                            bc_tn = bcs_temp[bcid_n].t
+                            t_dd = fp(2.0)*bc_tn-t_d
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
+                        elif bcs[bcid[i,j+1,k,fid_n]] == bc_wall:
+                            bcid_n = bcid[i,j+1,k,fid_n]
+                            bc_tn = bcs_temp[bcid_n].t
+                            t_dd = fp(2.0)*bc_tn-t_d
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
+                        elif bcs[bcid[i,j+1,k,fid_n]] == bc_outlet:
+                            t_dd = fp(2.0)*t_d - t_p
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
+                        else:
+                            t_dd = t[i,k+2,j]
+                            rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
+                        
+                    f_d = rho*vf_d*area_y   # flux downstream
+                    current_cell_boundary = False
+                    
+                    # if the south face of the current cell is boundary
+                    if bc_s == bc_inlet:
+                        bc_ts = bcs_temp[bcid_s].t
+                        t_u = fp(2.0)*bc_ts-t_p 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_s == bc_wall:
+                        bc_ts = bcs_temp[bcid_s].t
+                        t_u = fp(2.0)*bc_ts-t_p 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    elif bc_s == bc_outlet:
+                        bc_ts = bcs_temp[bcid_s].t
+                        t_u = fp(2.0)*t_p-t_d 
+                        t_uu = fp(2.0)*t_u-t_p
+                        rho = dens[i,j,k]
+                        current_cell_boundary = True
+                    else:
+                        t_u = t[i,k-1,j]
+                        rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                    
+                    # if the south face of the south cell is boundary
+                    if current_cell_boundary == False:
+                        if bcs[bcid[i,j-1,k,fid_s]] == bc_inlet:
+                            bcid_s = bcid[i-1,j,k,fid_s]
+                            bc_ts = bcs_temp[bcid_s].t
+                            t_uu = fp(2.0)*bc_ts-t_u
+                            rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                        elif bcs[bcid[i,j-1,k,fid_s]] == bc_wall:
+                            bcid_s = bcid[i-1,j,k,fid_s]
+                            bc_ts = bcs_temp[bcid_s].t
+                            t_uu = fp(2.0)*bc_ts-t_u
+                            rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                        elif bcs[bcid[i,j-1,k,fid_s]] == bc_outlet:
+                            t_uu = fp(2.0)*t_u - t_p
+                            rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                        else:
+                            t_uu = t[i,j-2,k]
+                            rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                        
+                    f_u = rho*vf_u*area_y   # flux upstream
+                    current_cell_boundary = False
+                    
+                    au = fp(0.); ad = fp(0.)
+                    if f_u > fp(0.):
+                        au = fp(1.)
+                    if f_d > fp(0.):
+                        ad = fp(1.)
+                    
+                    rdm = (t_dd-t_d)/(t_d-t_p+1.e-12)    # rdm : r_downstream^minus
+                    rdp = (t_p-t_u)/(t_d-t_p+1.e-12)     # rdp : r_downstream^plus
+                    rum = (t_d-t_p)/(t_p-t_u+1.e-12)
+                    rup = (t_u-t_uu)/(t_p-t_u+1.e-12)
+                    
+                    if(t_dd==t_d) : rdm = fp(0.)
+                    if(t_p==t_u) : rdp = fp(0.)
+                    if(t_d==t_p) : rum = fp(0.)
+                    if(t_u==t_uu) : rup = fp(0.)
+                    
+                    src += (fp(0.5)*f_d*((fp(1.)-ad)*limiter(rdm,limiter_scheme)-ad*limiter(rdp,limiter_scheme))*(t_d-t_p) 
+                                - fp(0.5)*f_u*((fp(1.)-au)*limiter(rum,limiter_scheme)-au*limiter(rup,limiter_scheme))*(t_p-t_u))
+                    
+                    ct[i,j,k,id_bsrc] += src
+    return

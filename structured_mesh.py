@@ -166,6 +166,9 @@ class StructuredMesh:
 
     def Set_conv_scheme(self, conv_scheme):
         self.conv_scheme = conv_scheme
+    
+    def Set_limiter_scheme(self, limiter_scheme):
+        self.limiter_scheme = limiter_scheme
         
     def CreateSolvingMethodData(self):
         

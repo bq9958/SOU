@@ -49,6 +49,9 @@ case.CreateSimulationData()
 conv_scheme = 1 # conv_scheme
 case.Set_conv_scheme(conv_scheme)
 
+limiter_scheme = "vanleer"
+case.Set_limiter_scheme(limiter_scheme)
+
 nsteps = 100
 case.Set_nsteps(nsteps)
 nsteps = case.nsteps
