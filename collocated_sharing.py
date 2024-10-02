@@ -7,6 +7,8 @@ Created on 04/05/2023
 import numpy as np
 from precision_data import fp
 from kernels import *
+import logging
+import log_config
 
 # For temperature
 def conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x, y, z, dens, t, uf, vf, wf, ct):
@@ -353,6 +355,8 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
             for j in range(ncy):
                 for i in range(ncx):
                     
+                    logging.debug("current i = " + str(i))
+                    
                     # phiuu | phiu | p | phid | phidd
                     # u > 0 toward east; v > 0 toward north
                     # therfore, west and south are upstreams; east and north are downstreams
@@ -408,17 +412,18 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the east face of the east cell is boundary
                     if current_cell_boundary == False:
-                        if bcs[bcid[i+1,j,k,fid_e]] == bc_inlet:
+                        logging.debug("[East] Current cell is not boundary")
+                        if bcs[bcid[i+1,j,k,fid_e]].type == bc_inlet:
                             bcid_e = bcid[i+1,j,k,fid_e]
                             bc_te = bcs_temp[bcid_e].t
                             t_dd = fp(2.0)*bc_te-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
-                        elif bcs[bcid[i+1,j,k,fid_e]] == bc_wall:
+                        elif bcs[bcid[i+1,j,k,fid_e]].type == bc_wall:
                             bcid_e = bcid[i+1,j,k,fid_e]
                             bc_te = bcs_temp[bcid_e].t
                             t_dd = fp(2.0)*bc_te-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
-                        elif bcs[bcid[i+1,j,k,fid_e]] == bc_outlet:
+                        elif bcs[bcid[i+1,j,k,fid_e]].type == bc_outlet:
                             t_dd = fp(2.0)*t_d - t_p
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
                         else:
@@ -430,18 +435,21 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the west face of the current cell is boundary
                     if bc_w == bc_inlet:
+                        logging.debug("[West] Current cell is boundary")
                         bc_tw = bcs_temp[bcid_w].t
                         t_u = fp(2.0)*bc_tw-t_p 
                         t_uu = fp(2.0)*t_u-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_w == bc_wall:
+                        logging.debug("[West] Current cell is boundary")
                         bc_tw = bcs_temp[bcid_w].t
                         t_u = fp(2.0)*bc_tw-t_p 
                         t_uu = fp(2.0)*t_u-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_w == bc_outlet:
+                        logging.debug("[West] Current cell is boundary")
                         bc_tw = bcs_temp[bcid_w].t
                         t_u = fp(2.0)*t_p-t_d 
                         t_uu = fp(2.0)*t_u-t_p
@@ -453,22 +461,27 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the west face of the west cell is boundary
                     if current_cell_boundary == False:
-                        if bcs[bcid[i-1,j,k,fid_w]] == bc_inlet:
+                        logging.debug("[West] Current cell is not boundary")
+                        if bcs[bcid[i-1,j,k,fid_w]].type == bc_inlet:
+                            logging.debug("[West] Neighbor is boundary")
                             bcid_w = bcid[i-1,j,k,fid_w]
                             bc_tw = bcs_temp[bcid_w].t
                             t_uu = fp(2.0)*bc_tw-t_u
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
-                        elif bcs[bcid[i-1,j,k,fid_w]] == bc_wall:
+                        elif bcs[bcid[i-1,j,k,fid_w]].type == bc_wall:
+                            logging.debug("[West] Neighbor is boundary")
                             bcid_w = bcid[i-1,j,k,fid_w]
                             bc_tw = bcs_temp[bcid_w].t
                             t_uu = fp(2.0)*bc_tw-t_u
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
-                        elif bcs[bcid[i-1,j,k,fid_w]] == bc_outlet:
+                        elif bcs[bcid[i-1,j,k,fid_w]].type == bc_outlet:
+                            logging.debug("[West] Neighbor is boundary")
                             t_uu = fp(2.0)*t_u - t_p
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
                         else:
                             t_uu = t[i-2,j,k]
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                        
                         
                     f_u = rho*uf_u*area_x   # flux upstream
                     current_cell_boundary = False
@@ -518,17 +531,17 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the north face of the north cell is boundary
                     if current_cell_boundary == False:
-                        if bcs[bcid[i,j+1,k,fid_n]] == bc_inlet:
+                        if bcs[bcid[i,j+1,k,fid_n]].type == bc_inlet:
                             bcid_n = bcid[1,j+1,k,fid_n]
                             bc_tn = bcs_temp[bcid_n].t
                             t_dd = fp(2.0)*bc_tn-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
-                        elif bcs[bcid[i,j+1,k,fid_n]] == bc_wall:
+                        elif bcs[bcid[i,j+1,k,fid_n]].type == bc_wall:
                             bcid_n = bcid[i,j+1,k,fid_n]
                             bc_tn = bcs_temp[bcid_n].t
                             t_dd = fp(2.0)*bc_tn-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
-                        elif bcs[bcid[i,j+1,k,fid_n]] == bc_outlet:
+                        elif bcs[bcid[i,j+1,k,fid_n]].type == bc_outlet:
                             t_dd = fp(2.0)*t_d - t_p
                             rho = fp(0.5) * (dens[i,j,k] + dens[i,j+1,k])
                         else:
@@ -563,17 +576,17 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the south face of the south cell is boundary
                     if current_cell_boundary == False:
-                        if bcs[bcid[i,j-1,k,fid_s]] == bc_inlet:
+                        if bcs[bcid[i,j-1,k,fid_s]].type == bc_inlet:
                             bcid_s = bcid[i-1,j,k,fid_s]
                             bc_ts = bcs_temp[bcid_s].t
                             t_uu = fp(2.0)*bc_ts-t_u
                             rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
-                        elif bcs[bcid[i,j-1,k,fid_s]] == bc_wall:
+                        elif bcs[bcid[i,j-1,k,fid_s]].type == bc_wall:
                             bcid_s = bcid[i-1,j,k,fid_s]
                             bc_ts = bcs_temp[bcid_s].t
                             t_uu = fp(2.0)*bc_ts-t_u
                             rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
-                        elif bcs[bcid[i,j-1,k,fid_s]] == bc_outlet:
+                        elif bcs[bcid[i,j-1,k,fid_s]].type == bc_outlet:
                             t_uu = fp(2.0)*t_u - t_p
                             rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
                         else:
@@ -603,4 +616,5 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                                 - fp(0.5)*f_u*((fp(1.)-au)*limiter(rum,limiter_scheme)-au*limiter(rup,limiter_scheme))*(t_p-t_u))
                     
                     ct[i,j,k,id_bsrc] += src
+                    logging.debug("SOU_src = " + str(src))
     return

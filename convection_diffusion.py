@@ -10,6 +10,7 @@ import time
 from precision_data import fp
 from structured_mesh import *
 from collocated_segregated import *
+import logging
 import log_config
 
 # clock
@@ -45,8 +46,8 @@ case.CreateCoeffMeshData()
 
 case.CreateSimulationData()
 
-# 0: Upwind; 1: CD; 2: Power-law; 3: SOU (to be implemented);
-conv_scheme = 1 # conv_scheme
+# 0: Upwind; 1: CD; 2: Power-law; 3: SOU;
+conv_scheme = 3 # conv_scheme
 case.Set_conv_scheme(conv_scheme)
 
 limiter_scheme = "vanleer"

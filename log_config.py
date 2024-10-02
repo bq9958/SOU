@@ -1,6 +1,6 @@
 import logging
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(filename)s:%(lineno)d - %(levelname)s - %(message)s'
 )

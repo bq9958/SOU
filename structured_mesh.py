@@ -610,6 +610,8 @@ class PostProcessing:
             out_file = 'center_temp_x_upwind.dat'
         elif conv_scheme == 1:
             out_file = 'center_temp_x_center.dat'
+        elif conv_scheme == 3:
+            out_file = 'center_temp_x_SOU.dat'
         
         # Open temperature output files
         with open(out_file, 'a') as file3:

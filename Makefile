@@ -5,7 +5,7 @@ OUTPUT = result.log
 all: run
 
 run:
-	$(PYTHON) $(SCRIPT) > $(OUTPUT) 2>&1
+	$(PYTHON) $(SCRIPT)
 
 clean:
 	rm -f $(OUTPUT)
