@@ -53,7 +53,7 @@ case.Set_conv_scheme(conv_scheme)
 limiter_scheme = "vanleer"
 case.Set_limiter_scheme(limiter_scheme)
 
-nsteps = 100
+nsteps = 2
 case.Set_nsteps(nsteps)
 nsteps = case.nsteps
 

@@ -357,6 +357,8 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     logging.debug("current i = " + str(i))
                     
+                    src = fp(0.0)
+                    
                     # phiuu | phiu | p | phid | phidd
                     # u > 0 toward east; v > 0 toward north
                     # therfore, west and south are upstreams; east and north are downstreams
@@ -366,13 +368,13 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     t_d  = fp(0.)
                     t_dd = fp(0.)
                     
-                    current_cell_boundary = False
+                    if ncy == 1:
+                        if i == 0:
+                            t_p = fp(0.0)
+                        elif i == (ncx-1):
+                            t_p = fp(1.0)
                     
-                    # face vel down/upstream
-                    uf_d = uf[i+1,j,k]
-                    uf_u = uf[i,j,k]
-                    vf_d = vf[i,j+1,k]
-                    vf_u = vf[i,j,k]
+                    current_cell_boundary = False
                     
                     rho = fp(0.)
                     
@@ -387,20 +389,32 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     bc_s = bcs[bcid_s].type
                     
                     # East&west faces
+                    
+                    # face vel down/upstream
+                    if ncx == 1:
+                        uf_d = fp(0.)
+                        uf_u = fp(0.)
+                    else:
+                        uf_d = uf[i+1,j,k]
+                        uf_u = uf[i,j,k]
+                    
                     # if the east face of the current cell is boundary
                     if bc_e == bc_inlet:
+                        logging.debug("[East] Current cell is boundary")
                         bc_te = bcs_temp[bcid_e].t
                         t_d = fp(2.0)*bc_te-t_p 
                         t_dd = fp(2.0)*t_d-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_e == bc_wall:
+                        logging.debug("[East] Current cell is boundary")
                         bc_te = bcs_temp[bcid_e].t
                         t_d = fp(2.0)*bc_te-t_p 
                         t_dd = fp(2.0)*t_d-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_e == bc_outlet:
+                        logging.debug("[East] Current cell is boundary")
                         bc_te = bcs_temp[bcid_e].t
                         t_d = fp(2.0)*t_p-t_u 
                         t_dd = fp(2.0)*t_d-t_p
@@ -414,19 +428,23 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     if current_cell_boundary == False:
                         logging.debug("[East] Current cell is not boundary")
                         if bcs[bcid[i+1,j,k,fid_e]].type == bc_inlet:
+                            logging.debug("[East] Neighbor is boundary")
                             bcid_e = bcid[i+1,j,k,fid_e]
                             bc_te = bcs_temp[bcid_e].t
                             t_dd = fp(2.0)*bc_te-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
                         elif bcs[bcid[i+1,j,k,fid_e]].type == bc_wall:
+                            logging.debug("[East] Neighbor is boundary")
                             bcid_e = bcid[i+1,j,k,fid_e]
                             bc_te = bcs_temp[bcid_e].t
                             t_dd = fp(2.0)*bc_te-t_d
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
                         elif bcs[bcid[i+1,j,k,fid_e]].type == bc_outlet:
+                            logging.debug("[East] Neighbor is boundary")
                             t_dd = fp(2.0)*t_d - t_p
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
                         else:
+                            logging.debug("[East] Neighbor is not boundary")
                             t_dd = t[i+2,k,j]
                             rho = fp(0.5) * (dens[i,j,k] + dens[i+1,j,k])
                         
@@ -479,8 +497,13 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                             t_uu = fp(2.0)*t_u - t_p
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
                         else:
+                            logging.debug("[West] Neighbor is not boundary")
                             t_uu = t[i-2,j,k]
                             rho = fp(0.5) * (dens[i-1,j,k] + dens[i,j,k])
+                    
+                    if ncx == 1:
+                        t_uu = t_p; t_u = t_p; t_d = t_p; t_dd = t_p
+                        rho  = dens[i,j,k]
                         
                         
                     f_u = rho*uf_u*area_x   # flux upstream
@@ -506,20 +529,31 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                                 - fp(0.5)*f_u*((fp(1.)-au)*limiter(rum,limiter_scheme)-au*limiter(rup,limiter_scheme))*(t_p-t_u))
                     
                     # North&east faces
+                    # face vel down/upstream
+                    if ncy == 1:
+                        vf_d = fp(0.)
+                        vf_u = fp(0.)
+                    else:
+                        vf_d = vf[i,j+1,k]
+                        vf_u = vf[i,j,k]
+                        
                     # if the north face of the current cell is boundary
                     if bc_n == bc_inlet:
+                        logging.debug("[North] Current cell is boundary")
                         bc_tn = bcs_temp[bcid_n].t
                         t_d = fp(2.0)*bc_tn-t_p 
                         t_dd = fp(2.0)*t_d-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_n == bc_wall:
+                        logging.debug("[North] Current cell is boundary")
                         bc_tn = bcs_temp[bcid_n].t
                         t_d = fp(2.0)*bc_tn-t_p 
                         t_dd = fp(2.0)*t_d-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_n == bc_outlet:
+                        logging.debug("[North] Current cell is boundary")
                         bc_tn = bcs_temp[bcid_n].t
                         t_d = fp(2.0)*t_p-t_u 
                         t_dd = fp(2.0)*t_d-t_p
@@ -553,18 +587,21 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     
                     # if the south face of the current cell is boundary
                     if bc_s == bc_inlet:
+                        logging.debug("[South] Current cell is boundary")
                         bc_ts = bcs_temp[bcid_s].t
                         t_u = fp(2.0)*bc_ts-t_p 
                         t_uu = fp(2.0)*t_u-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_s == bc_wall:
+                        logging.debug("[South] Current cell is boundary")
                         bc_ts = bcs_temp[bcid_s].t
                         t_u = fp(2.0)*bc_ts-t_p 
                         t_uu = fp(2.0)*t_u-t_p
                         rho = dens[i,j,k]
                         current_cell_boundary = True
                     elif bc_s == bc_outlet:
+                        logging.debug("[South] Current cell is boundary")
                         bc_ts = bcs_temp[bcid_s].t
                         t_u = fp(2.0)*t_p-t_d 
                         t_uu = fp(2.0)*t_u-t_p
@@ -592,9 +629,12 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                         else:
                             t_uu = t[i,j-2,k]
                             rho = fp(0.5) * (dens[i,j-1,k] + dens[i,j,k])
+                    
+                    if ncy == 1:
+                        t_uu = t_p; t_u = t_p; t_d = t_p; t_dd = t_p
+                        rho  = dens[i,j,k]
                         
                     f_u = rho*vf_u*area_y   # flux upstream
-                    current_cell_boundary = False
                     
                     au = fp(0.); ad = fp(0.)
                     if f_u > fp(0.):
@@ -602,15 +642,21 @@ def SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct):
                     if f_d > fp(0.):
                         ad = fp(1.)
                     
-                    rdm = (t_dd-t_d)/(t_d-t_p+1.e-12)    # rdm : r_downstream^minus
-                    rdp = (t_p-t_u)/(t_d-t_p+1.e-12)     # rdp : r_downstream^plus
-                    rum = (t_d-t_p)/(t_p-t_u+1.e-12)
-                    rup = (t_u-t_uu)/(t_p-t_u+1.e-12)
+                    rdm = (t_dd - t_d) / (t_d - t_p + fp(1.e-12))    # rdm : r_downstream^minus
+                    rdp = (t_p - t_u)  / (t_d - t_p + fp(1.e-12))     # rdp : r_downstream^plus
+                    rum = (t_d - t_p)  / (t_p - t_u + fp(1.e-12))
+                    rup = (t_u - t_uu) / (t_p - t_u + fp(1.e-12))
                     
                     if(t_dd==t_d) : rdm = fp(0.)
                     if(t_p==t_u) : rdp = fp(0.)
                     if(t_d==t_p) : rum = fp(0.)
                     if(t_u==t_uu) : rup = fp(0.)
+                    
+                    logging.debug("t_p = " + str(t_p))
+                    logging.debug("t_d = " + str(t_d))
+                    logging.debug("rdp = " + str(rdp))
+                    logging.debug("rum = " + str(rum))
+                    logging.debug("rup = " + str(rup))
                     
                     src += (fp(0.5)*f_d*((fp(1.)-ad)*limiter(rdm,limiter_scheme)-ad*limiter(rdp,limiter_scheme))*(t_d-t_p) 
                                 - fp(0.5)*f_u*((fp(1.)-au)*limiter(rum,limiter_scheme)-au*limiter(rup,limiter_scheme))*(t_p-t_u))

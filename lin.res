@@ -1,4 +1,3 @@
 #it_nl, it, tot_it, norm, init, max, rel
 1 100 100 nan nan nan nan
-50 100 5000 nan nan nan nan
-100 100 10000 nan nan nan nan
+2 100 200 nan nan nan nan
