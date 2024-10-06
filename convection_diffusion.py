@@ -10,8 +10,6 @@ import time
 from precision_data import fp
 from structured_mesh import *
 from collocated_segregated import *
-import logging
-import log_config
 
 # clock
 clock_begin = time.perf_counter() # define clock_begin
@@ -46,14 +44,14 @@ case.CreateCoeffMeshData()
 
 case.CreateSimulationData()
 
-# 0: Upwind; 1: CD; 2: Power-law; 3: SOU;
+# 0: Upwind; 1: CD; 2: Power-law; 3: SOU (to be implemented);
 conv_scheme = 3 # conv_scheme
 case.Set_conv_scheme(conv_scheme)
 
 limiter_scheme = "vanleer"
 case.Set_limiter_scheme(limiter_scheme)
 
-nsteps = 2
+nsteps = 100
 case.Set_nsteps(nsteps)
 nsteps = case.nsteps
 

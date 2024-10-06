@@ -134,8 +134,6 @@ class StructuredMesh:
         
         # temperature coefficient
         self.ct = np.zeros((self.ncx, self.ncy, self.ncz, self.ncoef  ), dtype=fp)
-        
-        self.r = np.zeros((self.nx, self.ny, self.nz), dtype = fp)
 
     def CreateSimulationData(self):
         
@@ -166,7 +164,7 @@ class StructuredMesh:
 
     def Set_conv_scheme(self, conv_scheme):
         self.conv_scheme = conv_scheme
-    
+        
     def Set_limiter_scheme(self, limiter_scheme):
         self.limiter_scheme = limiter_scheme
         

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm *.res post* *.dat
+#rm *.res post* *.dat
 
 for uf in -1.0
 do

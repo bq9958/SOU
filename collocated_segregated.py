@@ -8,8 +8,6 @@ import numpy as np
 from precision_data import fp
 from collocated_sharing import *
 from solver import *
-import logging
-import log_config
 
 def collocated_segregated(it, case, fluid, fluidboundary, post):
     
@@ -34,8 +32,7 @@ def collocated_segregated(it, case, fluid, fluidboundary, post):
     uf      = case.uf     
     vf      = case.vf     
     wf      = case.wf     
-    ct      = case.ct  
-    r       = case.r   
+    ct      = case.ct     
     
     niter_t = case.niter_t
     relax_t = case.relax_t
@@ -58,7 +55,6 @@ def collocated_segregated(it, case, fluid, fluidboundary, post):
         conduction_coefs(case, dim, ncx, ncy, ncz, ncoef, dt, spht, con, heat_src, x, y, z, dens, t, uf, vf, wf, ct)
         if case.conv_scheme == 3:
             SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct)
-        #logging.debug("SOU_sec has been added")
         conduction_coef_bcs(case, fluidboundary, dim, ncx, ncy, ncz, ncoef, dt, con, x, y, z, dens, t, ct)
         
         initzero = False

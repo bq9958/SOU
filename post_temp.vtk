@@ -12,4 +12,4 @@ Z_COORDINATES 2 float
 CELL_DATA 5
 FIELD FieldData 1
 t 1 5 float
-nan nan nan nan nan
+0.0 0.0053064614 0.03514207 0.19090188 1.0

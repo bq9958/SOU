@@ -1,17 +1,3 @@
-collocated_sharing.py:358 - DEBUG - current i = 0
-collocated_sharing.py:415 - DEBUG - [East] Current cell is not boundary
-collocated_sharing.py:445 - DEBUG - [West] Current cell is boundary
-collocated_sharing.py:615 - DEBUG - SOU_src = 0.49999999999975
-collocated_sharing.py:358 - DEBUG - current i = 1
-collocated_sharing.py:415 - DEBUG - [East] Current cell is not boundary
-collocated_sharing.py:464 - DEBUG - [West] Current cell is not boundary
-collocated_sharing.py:615 - DEBUG - SOU_src = 0.0
-collocated_sharing.py:358 - DEBUG - current i = 2
-collocated_sharing.py:415 - DEBUG - [East] Current cell is not boundary
-collocated_sharing.py:464 - DEBUG - [West] Current cell is not boundary
-collocated_sharing.py:615 - DEBUG - SOU_src = 0.0
-collocated_sharing.py:358 - DEBUG - current i = 3
-collocated_sharing.py:415 - DEBUG - [East] Current cell is not boundary
 nx, ny, nz =  6 2 2
 ncx, ncy, ncz =  5 1 1
 dx, dy, dz =  0.25 1.0 1.0
@@ -23,11 +9,15 @@ bbox Lx, Ly, Lz =  1.25 1.0 1.0
 ----------------------------
 Begin iter =  1
 ----------------------------
-Traceback (most recent call last):
-  File "convection_diffusion.py", line 129, in <module>
-    case.stop_sim = collocated_segregated(it, case, fluid, fluidboundary, post)
-  File "/mnt/e/Document-E/CFD0to1/SOU/collocated_segregated.py", line 59, in collocated_segregated
-    SOU_src(case, fluidboundary, dim, ncx, ncy, ncz, t, uf, vf, wf, dens, ct)
-  File "/mnt/e/Document-E/CFD0to1/SOU/collocated_sharing.py", line 430, in SOU_src
-    t_dd = t[i+2,k,j]
-IndexError: index 5 is out of bounds for axis 0 with size 5
+it_nl, it, tot_it, norm2, init, max, rel  1 4 4 0.017082863823155766 0.23717082451262844 0.23717082451262844 0.07202767818621876
+it, walltime, l2_t/l2_max_t  1 0.005618494000373175 1.0
+
+----------------------------
+Final iter = 5
+it, l2_t/l2_max_t 5 2.4773416e-07
+----------------------------
+it, walltime, l2_t/l2_max_t  5 0.01569136800026172 2.4773416e-07
+Check Pe_L  0.0
+Check conv_scheme  3
+elapsed time:  0.017150636998849222
+ 
