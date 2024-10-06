@@ -1,23 +1,23 @@
-nx, ny, nz =  6 2 2
-ncx, ncy, ncz =  5 1 1
-dx, dy, dz =  0.25 1.0 1.0
-bbox xmin, xmax =  -0.125 1.125
+nx, ny, nz =  16 2 2
+ncx, ncy, ncz =  15 1 1
+dx, dy, dz =  0.0714285691579183 1.0 1.0
+bbox xmin, xmax =  -0.035714287 1.0357143
 bbox ymin, ymax =  0.0 1.0
 bbox zmin, zmax =  0.0 1.0
-bbox Lx, Ly, Lz =  1.25 1.0 1.0
+bbox Lx, Ly, Lz =  1.0714285 1.0 1.0
 
 ----------------------------
 Begin iter =  1
 ----------------------------
-it_nl, it, tot_it, norm2, init, max, rel  1 4 4 0.017082863823155766 0.23717082451262844 0.23717082451262844 0.07202767818621876
-it, walltime, l2_t/l2_max_t  1 0.005618494000373175 1.0
+it_nl, it, tot_it, norm2, init, max, rel  1 7 7 0.012756360889184705 0.1369306393763006 0.1369306393763006 0.09315928814243545
+it, walltime, l2_t/l2_max_t  1 0.007041750999633223 1.0
 
 ----------------------------
-Final iter = 5
-it, l2_t/l2_max_t 5 2.4773416e-07
+Final iter = 8
+it, l2_t/l2_max_t 8 0.0
 ----------------------------
-it, walltime, l2_t/l2_max_t  5 0.01569136800026172 2.4773416e-07
+it, walltime, l2_t/l2_max_t  8 0.07184896399849094 0.0
 Check Pe_L  0.0
 Check conv_scheme  3
-elapsed time:  0.017150636998849222
+elapsed time:  0.07379696399948443
  
