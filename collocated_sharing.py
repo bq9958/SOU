@@ -293,23 +293,23 @@ def conduction_coef_bcs(case, fluidboundary, dim, ncx, ncy, ncz, ncoef, dt, con,
                 # 3D
 
     # Forced cell-centered boundary conditions for 红宝书的例子，例子见书上Fig. 11.7
-    for k in range(ncz):
-        for j in range(ncy):
-            for i in range(ncx):
-                if i==0:
-                    ct[i,j,k,id_aP]   = fp(1.0)
-                    ct[i,j,k,id_aE]   = fp(0.0)
-                    ct[i,j,k,id_aW]   = fp(0.0)
-                    ct[i,j,k,id_aN]   = fp(0.0)
-                    ct[i,j,k,id_aS]   = fp(0.0)
-                    ct[i,j,k,id_bsrc] = bc_tw
-                elif i==ncx-1:
-                    ct[i,j,k,id_aP]   = fp(1.0)
-                    ct[i,j,k,id_aE]   = fp(0.0)
-                    ct[i,j,k,id_aW]   = fp(0.0)
-                    ct[i,j,k,id_aN]   = fp(0.0)
-                    ct[i,j,k,id_aS]   = fp(0.0)
-                    ct[i,j,k,id_bsrc] = bc_te
+    # for k in range(ncz):
+    #     for j in range(ncy):
+    #         for i in range(ncx):
+    #             if i==0:
+    #                 ct[i,j,k,id_aP]   = fp(1.0)
+    #                 ct[i,j,k,id_aE]   = fp(0.0)
+    #                 ct[i,j,k,id_aW]   = fp(0.0)
+    #                 ct[i,j,k,id_aN]   = fp(0.0)
+    #                 ct[i,j,k,id_aS]   = fp(0.0)
+    #                 ct[i,j,k,id_bsrc] = bc_tw
+    #             elif i==ncx-1:
+    #                 ct[i,j,k,id_aP]   = fp(1.0)
+    #                 ct[i,j,k,id_aE]   = fp(0.0)
+    #                 ct[i,j,k,id_aW]   = fp(0.0)
+    #                 ct[i,j,k,id_aN]   = fp(0.0)
+    #                 ct[i,j,k,id_aS]   = fp(0.0)
+    #                 ct[i,j,k,id_bsrc] = bc_te
 
     return
 
