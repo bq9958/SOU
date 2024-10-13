@@ -21,6 +21,6 @@ g(x) = slope2 * (x - x2) + y2
 
 p   'convergence_test_SOU.dat' u 1:2 with points pointsize 5 lc rgb 'red' ti 'SOU Numerical', \
     'convergence_test_upwind.dat' u 1:2 with points pointsize 5 lc rgb 'green' ti 'upwind Numerical', \
-    'convergence_test_center.dat' u 1:2 with points pointsize 5 lc rgb 'purple' ti 'upwind Numerical', \
+    'convergence_test_center.dat' u 1:2 with points pointsize 5 lc rgb 'purple' ti 'CD Numerical', \
     f(x) w l lw 2 lc rgb 'blue' ti sprintf('Line with slope %.2f', slope1), \
     g(x) w l lw 2 lc rgb 'yellow' ti sprintf('Line with slope %.2f', slope2)
