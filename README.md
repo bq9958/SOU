@@ -12,3 +12,6 @@ python3 convection_diffusion2.py
 脚本运行代码
 ./job_Pe_L_center (该脚本内部实际运行文件convection_diffusion.py，用以复现红宝书上的Fig. 11.7)
 ./job_Pe_L (该脚本内部实际运行文件convection_diffusion2.py，用以复现红宝书上的Fig. 11.2)
+
+精度测试运行代码
+./job_convergence_test（在convection_diffusion.py末尾开启对应命令）

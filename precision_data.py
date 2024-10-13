@@ -8,4 +8,4 @@ import numpy as np
 
 # NumPy's standard numpy.float is the same, and is also the same as numpy.float64
 # single = np.float32, double = np.float64
-fp = np.float32
+fp = np.float64

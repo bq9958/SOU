@@ -6,6 +6,8 @@ Created on 04/05/2023
 
 import numpy as np
 from precision_data import fp
+import logging
+import log_config
 
 def eqn_scalar_norm2(case, dim, it_nl, ncx, ncy, ncz, u0, u, var):
 
@@ -24,7 +26,7 @@ def eqn_scalar_norm2(case, dim, it_nl, ncx, ncy, ncz, u0, u, var):
     #             l2_u += res_u**2
     # ncell = ncx*ncy*ncz
     # l2_u = math.sqrt(l2_u/fp(ncell))
-    
+
     l2_u = np.sqrt(np.mean((u - u0)**2))
 
     # Compute the maximum L2 norm observed so far

@@ -22,8 +22,10 @@ ncy = 1 # ncy
 ncz = 1 # ncz
 
 # BCs on cell-centers
-xmin = fp(-0.5/(ncx-1))
-xmax = fp(1.0+0.5/(ncx-1)) # xmax, make sure xc[ncx-1] - xc[0] = 1.0
+#xmin = fp(-0.5/(ncx-1))
+#xmax = fp(1.0+0.5/(ncx-1)) # xmax, make sure xc[ncx-1] - xc[0] = 1.0
+xmin = fp(0.0)    # when BCs are imposed at xmin&xmax
+xmax = fp(1.0)    # when BCs are imposed at xmin&xmax
 ymin = fp(0.0)
 ymax = fp(1.0)
 zmin = fp(0.0)
