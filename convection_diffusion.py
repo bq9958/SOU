@@ -17,7 +17,7 @@ clock_begin = time.perf_counter() # define clock_begin
 # main codes
 dim = 2
 
-ncx = 25 # ncx, use odd number
+ncx = 5 # ncx, use odd number
 ncy = 1 # ncy
 ncz = 1 # ncz
 
@@ -45,7 +45,7 @@ case.CreateCoeffMeshData()
 case.CreateSimulationData()
 
 # 0: Upwind; 1: CD; 2: Power-law; 3: SOU (to be implemented);
-conv_scheme = 1 # conv_scheme
+conv_scheme = 3 # conv_scheme
 case.Set_conv_scheme(conv_scheme)
 
 limiter_scheme = "vanleer"
@@ -138,8 +138,10 @@ for it in range(1, nsteps+1):
     if case.stop_sim:
         break    
 
+# Uncomment the following lines based on your needs
 # post.WriteVTKCollocated_temp_Pe_L(case, fluid)
-post.WriteVTKCollocated_temp_Pe_L_center(case, fluid)
+#post.WriteVTKCollocated_temp_Pe_L_center(case, fluid)
+post.convergence_test(case, fluid)
 
 elapsed_time = time.perf_counter() - clock_begin
 print("elapsed time: ", elapsed_time)

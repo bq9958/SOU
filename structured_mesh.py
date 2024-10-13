@@ -587,7 +587,9 @@ class PostProcessing:
     def WriteVTKCollocated_temp_Pe_L_center(self, case, fluid):
 
         # Build the local data for np array
-        nx = case.nx      
+        nx = case.nx     
+        xmin = case.xmin
+        xmax = case.xmax 
 
         t  = case.t
         
@@ -595,11 +597,12 @@ class PostProcessing:
         if abs(con) > 10000:
             Pe_L = fp(0.0)
         else:
-            Pe_L = case.GetInitialUF() / con
+            #Pe_L = case.GetInitialUF() / con             
+            Pe_L = (xmax-xmin)*case.GetInitialUF() / con  # when BCs are imposed at xmin&xmax
             
         print("Check Pe_L ", Pe_L)
         
-        # 0: Upwind; 1: CD; 2: Power-law; 3: SOU (to be implemented);
+        # 0: Upwind; 1: CD; 2: Power-law; 3: SOU;
         conv_scheme = case.conv_scheme
         
         print("Check conv_scheme ", conv_scheme)
@@ -623,3 +626,47 @@ class PostProcessing:
                 xtemp = 0.5
                 result = (math.exp(Pe_L*xtemp)-1) / (math.exp(Pe_L)-1)
                 file3.write(f"{Pe_L} {t[i,j,k]} {result}\n")  
+
+
+    def convergence_test(self, case, fluid):   # for 1D case
+        
+        ncx  = case.ncx
+        t    = case.t
+        xmin = case.xmin
+        xmax = case.xmax
+        dx   = case.dx
+        con  = fluid.con
+        
+        L    = xmax - xmin
+        
+        if abs(con) > 10000:
+            Pe_L = fp(0.0)
+        else:
+            Pe_L = L*case.GetInitialUF() / con   # when BCs are imposed at xmin&xmax
+        
+        # 0: Upwind; 1: CD; 2: Power-law; 3: SOU;
+        conv_scheme = case.conv_scheme
+        
+        if conv_scheme == 0:
+            out_file = "convergence_test_upwind.dat"
+        elif conv_scheme == 1:
+            out_file = "convergence_test_center.dat"
+        elif conv_scheme == 3:
+            out_file = "convergence_test_SOU.dat"
+        
+        with open(out_file, 'a') as file3:
+            Error = fp(0.0)
+            for i in range(ncx):
+                j = 0
+                k = 0
+                x = xmin + (i + fp(0.5))*dx   # when BCs are imposed at xmin&xmax
+                t_num = t[i,j,k]
+                if abs(Pe_L) < fp(1.e-3):
+                    t_anly = fp(0.5)
+                else:
+                    t_anly = (math.exp(Pe_L*(x-xmin)/L)-1) / (math.exp(Pe_L)-1)
+                Error += (t_anly - t_num)**2
+            
+            Error = np.sqrt(Error/ncx)
+            
+            file3.write(f"{np.log(dx)} {np.log(Error)}\n")   
