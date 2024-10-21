@@ -47,7 +47,7 @@ case.CreateCoeffMeshData()
 case.CreateSimulationData()
 
 # 0: Upwind; 1: CD; 2: Power-law; 3: SOU (to be implemented);
-conv_scheme = 3 # conv_scheme
+conv_scheme = 1 # conv_scheme
 case.Set_conv_scheme(conv_scheme)
 
 limiter_scheme = "vanleer"
